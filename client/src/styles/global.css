@@ -2656,3 +2656,11 @@ footer {
   display: block;
   line-height: 1;
 }
+
+.auth-field-hint {
+  color: var(--bs-secondary-color);
+}
+
+[data-theme="dark"] .auth-field-hint {
+  color: #b8c0cc;
+}

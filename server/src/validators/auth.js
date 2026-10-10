@@ -1,10 +1,13 @@
+
 import { z } from "zod";
+
 const email = z
   .string()
   .trim()
   .email()
   .max(254)
-  .transform((v) => v.toLowerCase());
+  .transform((value) => value.toLowerCase());
+
 export const registerSchema = z
   .object({
     fullName: z.string().trim().min(1).max(120),
@@ -19,14 +22,25 @@ export const registerSchema = z
       .regex(/[^A-Za-z0-9]/, "Password must include a symbol"),
     confirmPassword: z.string(),
   })
-  .refine((v) => v.password === v.confirmPassword, {
+  .refine((value) => value.password === value.confirmPassword, {
     path: ["confirmPassword"],
     message: "Passwords do not match.",
   });
+
 export const loginSchema = z.object({
   email,
   password: z.string().min(1).max(128),
 });
+
 export const googleSchema = z.object({
   credential: z.string().min(20).max(10000),
+});
+
+export const verifyEmailSchema = z.object({
+  email,
+  code: z.string().regex(/^\d{6}$/, "Enter the six-digit verification code."),
+});
+
+export const resendVerificationSchema = z.object({
+  email,
 });

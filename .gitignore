@@ -8,6 +8,14 @@ server/node_modules/
 .env.*
 !.env.example
 !.env.local.example
+client/.env
+client/.env.*
+!client/.env.example
+!client/.env.local.example
+
+server/.env
+server/.env.*
+!server/.env.example
 
 # Build output
 dist/

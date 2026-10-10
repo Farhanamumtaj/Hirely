@@ -1,8 +1,11 @@
+
 import { pool } from "../config/db.js";
 import {
   register,
   login,
   googleLogin,
+  verifyEmail,
+  resendVerification,
   refreshSession,
   logout,
   safeUser,
@@ -11,8 +14,11 @@ import {
   registerSchema,
   loginSchema,
   googleSchema,
+  verifyEmailSchema,
+  resendVerificationSchema,
 } from "../validators/auth.js";
 import { apiError, asyncHandler } from "../utils/http.js";
+
 const invalid = (res, parsed) =>
   apiError(
     res,
@@ -20,75 +26,159 @@ const invalid = (res, parsed) =>
     "VALIDATION_ERROR",
     parsed.error.issues[0]?.message || "Please check the submitted fields.",
   );
+
 export const registerController = asyncHandler(async (req, res) => {
-  const p = registerSchema.safeParse(req.body);
-  if (!p.success) return invalid(res, p);
+  const parsed = registerSchema.safeParse(req.body);
+  if (!parsed.success) return invalid(res, parsed);
+
   try {
-    const result = await register(p.data, res);
+    const result = await register(parsed.data);
     return res.status(201).json({ data: result });
-  } catch (e) {
-    if (e.code === "23505")
+  } catch (error) {
+    if (error.code === "EMAIL_ALREADY_REGISTERED") {
       return apiError(
         res,
         409,
         "EMAIL_ALREADY_REGISTERED",
-        "An account with this email already exists.",
+        "This email is already registered. Please log in instead.",
       );
-    throw e;
+    }
+
+    if (error.code === "EMAIL_NOT_VERIFIED") {
+      return apiError(
+        res,
+        409,
+        "EMAIL_NOT_VERIFIED",
+        "This email is registered but not verified. Please request a new verification code.",
+      );
+    }
+
+    throw error;
   }
 });
-export const loginController = asyncHandler(async (req, res) => {
-  const p = loginSchema.safeParse(req.body);
-  if (!p.success) return invalid(res, p);
-  const result = await login(p.data, res);
-  if (!result)
-    return apiError(
-      res,
-      401,
-      "INVALID_CREDENTIALS",
-      "Email or password is incorrect.",
-    );
-  res.json({ data: result });
+
+export const verifyEmailController = asyncHandler(async (req, res) => {
+  const parsed = verifyEmailSchema.safeParse(req.body);
+  if (!parsed.success) return invalid(res, parsed);
+
+  try {
+    const result = await verifyEmail(parsed.data, res);
+    return res.json({ data: result });
+  } catch (error) {
+    if (error.status && error.code) {
+      return apiError(res, error.status, error.code, error.message);
+    }
+    throw error;
+  }
 });
+
+export const resendVerificationController = asyncHandler(
+  async (req, res) => {
+    const parsed = resendVerificationSchema.safeParse(req.body);
+    if (!parsed.success) return invalid(res, parsed);
+
+    try {
+      const result = await resendVerification(parsed.data.email);
+      return res.json({ data: result });
+    } catch (error) {
+      if (error.status && error.code) {
+        return apiError(res, error.status, error.code, error.message);
+      }
+      throw error;
+    }
+  },
+);
+
+export const loginController = asyncHandler(async (req, res) => {
+  const parsed = loginSchema.safeParse(req.body);
+  if (!parsed.success) return invalid(res, parsed);
+
+  try {
+    const result = await login(parsed.data, res);
+
+    if (!result) {
+      return apiError(
+        res,
+        401,
+        "INVALID_CREDENTIALS",
+        "Email or password is incorrect.",
+      );
+    }
+
+    return res.json({ data: result });
+  } catch (error) {
+    if (error.code === "EMAIL_NOT_VERIFIED") {
+      return apiError(
+        res,
+        403,
+        "EMAIL_NOT_VERIFIED",
+        "Please verify your email before logging in.",
+      );
+    }
+
+    throw error;
+  }
+});
+
 export const googleController = asyncHandler(async (req, res) => {
-  const p = googleSchema.safeParse(req.body);
-  if (!p.success) return invalid(res, p);
-  if (!process.env.GOOGLE_CLIENT_ID)
+  const parsed = googleSchema.safeParse(req.body);
+  if (!parsed.success) return invalid(res, parsed);
+
+  if (!process.env.GOOGLE_CLIENT_ID) {
     return apiError(
       res,
       503,
       "GOOGLE_NOT_CONFIGURED",
       "Google sign-in is not configured on this server.",
     );
+  }
+
   try {
-    res.json({ data: await googleLogin(p.data.credential, res) });
-  } catch (e) {
-    if (e.status)
-      return apiError(res, e.status, e.code || "GOOGLE_AUTH_FAILED", e.message);
-    throw e;
+    return res.json({
+      data: await googleLogin(parsed.data.credential, res),
+    });
+  } catch (error) {
+    if (error.status) {
+      return apiError(
+        res,
+        error.status,
+        error.code || "GOOGLE_AUTH_FAILED",
+        error.message,
+      );
+    }
+    throw error;
   }
 });
+
 export const refreshController = asyncHandler(async (req, res) => {
   const result = await refreshSession(req.cookies?.ra_refresh, res);
-  if (!result)
+
+  if (!result) {
     return apiError(
       res,
       401,
       "REFRESH_EXPIRED",
       "Your session expired. Please sign in again.",
     );
-  res.json({ data: result });
+  }
+
+  return res.json({ data: result });
 });
+
 export const logoutController = asyncHandler(async (req, res) => {
   await logout(req.auth?.sessionId, res, req.cookies?.ra_refresh);
   res.status(204).end();
 });
+
 export const meController = asyncHandler(async (req, res) => {
-  const r = await pool.query(
-    "SELECT id,full_name,email,created_at FROM users WHERE id=$1",
+  const result = await pool.query(
+    "SELECT id, full_name, email, created_at FROM users WHERE id = $1",
     [req.auth.userId],
   );
-  if (!r.rowCount)
+
+  if (!result.rowCount) {
     return apiError(res, 401, "USER_NOT_FOUND", "Please sign in again.");
-  res.json({ data: { user: safeUser(r.rows[0]) } });
+  }
+
+  return res.json({ data: { user: safeUser(result.rows[0]) } });
 });
