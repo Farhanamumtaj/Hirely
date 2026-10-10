@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# Build output
+dist/
+client/dist/
+server/dist/
+
+# Test coverage
+coverage/
+
+# Logs
+*.log
+
+# Private uploaded resumes
+server/private-uploads/*
+!server/private-uploads/.gitkeep
+
+# Operating system files
+.DS_Store
