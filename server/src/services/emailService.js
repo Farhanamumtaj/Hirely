@@ -13,10 +13,7 @@ const transporter = nodemailer.createTransport({
 
 export async function sendVerificationEmail(email, code) {
   await transporter.sendMail({
-    from: {
-      name: "Hirely",
-      address: process.env.SMTP_USER,
-    },
+    from: process.env.EMAIL_FROM || process.env.SMTP_USER,
     to: email,
     subject: "Verify your Hirely email address",
     text: `Your Hirely verification code is ${code}. It expires in 10 minutes. If you did not request this code, you can ignore this email.`,
