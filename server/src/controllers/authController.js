@@ -4,8 +4,6 @@ import {
   register,
   login,
   googleLogin,
-  verifyEmail,
-  resendVerification,
   refreshSession,
   logout,
   safeUser,
@@ -14,8 +12,6 @@ import {
   registerSchema,
   loginSchema,
   googleSchema,
-  verifyEmailSchema,
-  resendVerificationSchema,
 } from "../validators/auth.js";
 import { apiError, asyncHandler } from "../utils/http.js";
 
@@ -44,80 +40,26 @@ export const registerController = asyncHandler(async (req, res) => {
       );
     }
 
-    if (error.code === "EMAIL_NOT_VERIFIED") {
-      return apiError(
-        res,
-        409,
-        "EMAIL_NOT_VERIFIED",
-        "This email is registered but not verified. Please request a new verification code.",
-      );
-    }
-
     throw error;
   }
 });
-
-export const verifyEmailController = asyncHandler(async (req, res) => {
-  const parsed = verifyEmailSchema.safeParse(req.body);
-  if (!parsed.success) return invalid(res, parsed);
-
-  try {
-    const result = await verifyEmail(parsed.data, res);
-    return res.json({ data: result });
-  } catch (error) {
-    if (error.status && error.code) {
-      return apiError(res, error.status, error.code, error.message);
-    }
-    throw error;
-  }
-});
-
-export const resendVerificationController = asyncHandler(
-  async (req, res) => {
-    const parsed = resendVerificationSchema.safeParse(req.body);
-    if (!parsed.success) return invalid(res, parsed);
-
-    try {
-      const result = await resendVerification(parsed.data.email);
-      return res.json({ data: result });
-    } catch (error) {
-      if (error.status && error.code) {
-        return apiError(res, error.status, error.code, error.message);
-      }
-      throw error;
-    }
-  },
-);
 
 export const loginController = asyncHandler(async (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) return invalid(res, parsed);
 
-  try {
-    const result = await login(parsed.data, res);
+  const result = await login(parsed.data, res);
 
-    if (!result) {
-      return apiError(
-        res,
-        401,
-        "INVALID_CREDENTIALS",
-        "Email or password is incorrect.",
-      );
-    }
-
-    return res.json({ data: result });
-  } catch (error) {
-    if (error.code === "EMAIL_NOT_VERIFIED") {
-      return apiError(
-        res,
-        403,
-        "EMAIL_NOT_VERIFIED",
-        "Please verify your email before logging in.",
-      );
-    }
-
-    throw error;
+  if (!result) {
+    return apiError(
+      res,
+      401,
+      "INVALID_CREDENTIALS",
+      "Email or password is incorrect.",
+    );
   }
+
+  return res.json({ data: result });
 });
 
 export const googleController = asyncHandler(async (req, res) => {
@@ -146,6 +88,7 @@ export const googleController = asyncHandler(async (req, res) => {
         error.message,
       );
     }
+
     throw error;
   }
 });

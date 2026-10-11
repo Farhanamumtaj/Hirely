@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 const email = z
@@ -34,13 +33,4 @@ export const loginSchema = z.object({
 
 export const googleSchema = z.object({
   credential: z.string().min(20).max(10000),
-});
-
-export const verifyEmailSchema = z.object({
-  email,
-  code: z.string().regex(/^\d{6}$/, "Enter the six-digit verification code."),
-});
-
-export const resendVerificationSchema = z.object({
-  email,
 });

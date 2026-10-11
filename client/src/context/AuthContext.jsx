@@ -1,4 +1,3 @@
-
 import {
   createContext,
   useCallback,
@@ -37,29 +36,9 @@ export function AuthProvider({ children }) {
     };
   }, [restore]);
 
-  // Registration sends a code but does not create a logged-in session.
+  // Create an account without sending a verification email.
   const register = useCallback(async (data) => {
     const response = await api.post("/auth/register", data);
-    return response.data.data;
-  }, []);
-
-  // Only successful email verification should establish the session.
-  const verifyEmail = useCallback(async (email, code) => {
-    const response = await api.post("/auth/verify-email", {
-      email,
-      code,
-    });
-
-    const verifiedUser = response.data.data.user;
-    setUser(verifiedUser);
-    return verifiedUser;
-  }, []);
-
-  const resendVerification = useCallback(async (email) => {
-    const response = await api.post("/auth/resend-verification", {
-      email,
-    });
-
     return response.data.data;
   }, []);
 
@@ -100,8 +79,6 @@ export function AuthProvider({ children }) {
       user,
       loading,
       register,
-      verifyEmail,
-      resendVerification,
       login,
       googleLogin,
       updateProfile,
@@ -112,8 +89,6 @@ export function AuthProvider({ children }) {
       user,
       loading,
       register,
-      verifyEmail,
-      resendVerification,
       login,
       googleLogin,
       updateProfile,

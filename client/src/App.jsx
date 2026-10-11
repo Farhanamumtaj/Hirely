@@ -1,11 +1,10 @@
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import SiteLayout from "./components/SiteLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Landing from "./pages/Landing";
-import { Login, Register, VerifyEmail } from "./pages/AuthPages";
+import { Login, Register } from "./pages/AuthPages";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import ResumeEditor from "./pages/ResumeEditor";
@@ -22,7 +21,6 @@ export default function App() {
               <Route index element={<Landing />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
-              <Route path="verify-email" element={<VerifyEmail />} />
 
               <Route element={<ProtectedRoute />}>
                 <Route path="dashboard" element={<Dashboard />} />
