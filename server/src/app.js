@@ -7,6 +7,7 @@ import resumeRoutes from "./routes/resumes.js";
 import { apiError } from "./utils/http.js";
 import { isAllowedOrigin } from "./utils/originPolicy.js";
 export const app = express();
+app.set("trust proxy", 1);
 const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 app.disable("x-powered-by");
 app.use(
