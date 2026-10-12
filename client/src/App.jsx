@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -5,6 +6,10 @@ import SiteLayout from "./components/SiteLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import { Login, Register } from "./pages/AuthPages";
+import {
+  ForgotPassword,
+  ResetPassword,
+} from "./pages/PasswordRecoveryPages";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import ResumeEditor from "./pages/ResumeEditor";
@@ -21,6 +26,15 @@ export default function App() {
               <Route index element={<Landing />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
+
+              <Route
+                path="forgot-password"
+                element={<ForgotPassword />}
+              />
+              <Route
+                path="reset-password"
+                element={<ResetPassword />}
+              />
 
               <Route element={<ProtectedRoute />}>
                 <Route path="dashboard" element={<Dashboard />} />

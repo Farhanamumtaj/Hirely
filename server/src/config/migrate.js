@@ -1,16 +1,22 @@
+
 import "dotenv/config";
 import { readFile } from "node:fs/promises";
 import { pool } from "./db.js";
 
-const migrations = ["001_initial_schema.sql", "002_email_verification.sql"];
+const migrations = [
+  "001_initial_schema.sql",
+  "002_email_verification.sql",
+  "003_password_reset.sql",
+];
 
 try {
   await pool.query(`
-  CREATE TABLE IF NOT EXISTS schema_migrations (
-    name TEXT PRIMARY KEY,
-    applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
-  )
-`);
+    CREATE TABLE IF NOT EXISTS schema_migrations (
+      name TEXT PRIMARY KEY,
+      applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `);
+
   for (const name of migrations) {
     const applied = await pool.query(
       "SELECT 1 FROM schema_migrations WHERE name = $1",

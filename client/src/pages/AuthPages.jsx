@@ -135,6 +135,11 @@ export function Login() {
           onChange={(value) => setForm({ ...form, password: value })}
           autoComplete="current-password"
         />
+        <div className="d-flex justify-content-end mb-3">
+          <Link to="/forgot-password" className="small">
+            Forgot password?
+          </Link>
+        </div>
 
         {notice && (
           <div
@@ -300,6 +305,7 @@ export function Register() {
         fullName: form.fullName,
         email: form.email,
         password: form.password,
+        confirmPassword: form.confirmPassword,
       });
 
       navigate("/login", {
@@ -316,8 +322,7 @@ export function Register() {
       if (code === "EMAIL_ALREADY_REGISTERED") {
         navigate("/login", {
           state: {
-            message:
-              "This email is already registered. Please log in instead.",
+            message: "This email is already registered. Please log in instead.",
             success: false,
           },
         });
@@ -422,14 +427,7 @@ export function Register() {
   );
 }
 
-function Field({
-  label,
-  type = "text",
-  value,
-  onChange,
-  hint,
-  autoComplete,
-}) {
+function Field({ label, type = "text", value, onChange, hint, autoComplete }) {
   const [showPassword, setShowPassword] = useState(false);
   const id = `auth-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
   const isPassword = type === "password";

@@ -460,7 +460,7 @@ export function parseResumeText(text, filename = "Imported Resume") {
 
   if (!hasDetectedSections) {
     warnings.push(
-      "No recognized section headings were detected. The extracted text was placed in the summary for manual review.",
+      "No recognized section headings were detected. The extracted text was placed in the summary for manual review and manual organization.",
     );
   }
 

@@ -7,7 +7,16 @@ const link = z
   .max(500)
   .optional()
   .default("")
-  .refine((v) => !v || /^https:\/\//i.test(v), "Links must use HTTPS.");
+  .refine((value) => {
+    if (!value) return true;
+
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" && Boolean(url.hostname);
+    } catch {
+      return false;
+    }
+  }, "Links must be valid HTTPS URLs.");
 const record = z
   .object({
     id: z.string().max(80).optional(),
@@ -41,7 +50,16 @@ export const resumeSchema = z
       .object({
         fullName: optionalText(120),
         phone: optionalText(40),
-        email: z.string().trim().max(254).optional().default(""),
+        email: z
+          .string()
+          .trim()
+          .max(254)
+          .refine(
+            (value) => !value || z.string().email().safeParse(value).success,
+            "Enter a valid email address.",
+          )
+          .optional()
+          .default(""),
         location: optionalText(200),
         linkedin: link,
         github: link,
