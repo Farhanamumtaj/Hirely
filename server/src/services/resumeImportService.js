@@ -32,5 +32,6 @@ export async function extractResumeText(file) {
       ),
       { status: 422, code: "EMPTY_RESUME_TEXT" },
     );
+    console.log("EXTRACTED RESUME TEXT:\n", text);
   return text;
 }

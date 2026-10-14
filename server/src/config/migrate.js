@@ -7,6 +7,7 @@ const migrations = [
   "001_initial_schema.sql",
   "002_email_verification.sql",
   "003_password_reset.sql",
+  "004_original_resume_uploads.sql"
 ];
 
 try {

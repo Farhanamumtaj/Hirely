@@ -1,5 +1,5 @@
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route , Navigate} from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import SiteLayout from "./components/SiteLayout";
@@ -39,6 +39,7 @@ export default function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="settings" element={<ProfileSettings />} />
+                <Route path="resumes" element={<Navigate to="/dashboard" replace />} />
                 <Route path="resumes/new" element={<ResumeEditor />} />
                 <Route path="resumes/:id/edit" element={<ResumeEditor />} />
                 <Route

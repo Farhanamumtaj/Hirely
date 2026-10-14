@@ -154,7 +154,7 @@ export default function Dashboard() {
             your experience.
           </span>
         </div>
-        <Link className="workspace-tip-link" to="/dashboard">
+        <Link className="workspace-tip-link" to="/resumes">
           Your next step{" "}
           <i className="bi bi-arrow-down-right" aria-hidden="true" />
         </Link>
